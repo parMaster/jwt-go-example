@@ -57,7 +57,7 @@
 			<h1>Sign In</h1>
 			<form>
 				<input type="text" name="username" placeholder="Username" required>
-				<input type="password" name="password" placeholder="Password" required>
+				<input type="password" name="password" placeholder="Password" value="password1" required>
 				<input type="button" name="submit" value="Sign In">
 			</form>
 			<div class="request-response">
@@ -76,9 +76,7 @@
 			$(document).ready(function() {
 				$("input[name='callWelcome']").click(function() {
 					let url = "http://localhost:8000/welcome";
-
 					$(".welcome .request-url").text(url);
-
 					$.ajax({
 						url: url,
 						type: "GET",
@@ -92,18 +90,57 @@
 						$(".welcome .response-message").text(jqXHR.responseText);
 					}).done(function(data, textStatus, jqXHR) {
 						$(".welcome .response-code").text(jqXHR.status + " - " + textStatus);
-						$(".welcome .response-message").text(data);
+					});
+				});
+				// refresh calls /refresh api to refresh token
+				$("input[name='refresh']").click(function() {
+					let url = "http://localhost:8000/refresh";
+					$(".welcome .request-url").text(url);
+					$.ajax({
+						url: url,
+						type: "GET",
+						dataType: "text",
+					}).always(function(data, textStatus, jqXHR) {
+						// this function will be called no matter response code is 200 or not
+					}).fail(function(jqXHR, textStatus, errorThrown) {
+						// if response code is not 200, this function will be called
+						console.log("error");
+						$(".welcome .response-code").text(jqXHR.status + " - " + textStatus + " - " + errorThrown);
+						$(".welcome .response-message").text(jqXHR.responseText);
+					}).done(function(data, textStatus, jqXHR) {
+						$(".welcome .response-code").text(jqXHR.status + " - " + textStatus);
+					});
+				});
+
+				// logout calls /logout api to logout
+				$("input[name='logout']").click(function() {
+					let url = "http://localhost:8000/logout";
+					$(".welcome .request-url").text(url);
+					$.ajax({
+						url: url,
+						type: "GET",
+						dataType: "text",
+					}).always(function(data, textStatus, jqXHR) {
+						// this function will be called no matter response code is 200 or not
+					}).fail(function(jqXHR, textStatus, errorThrown) {
+						// if response code is not 200, this function will be called
+						console.log("error");
+						$(".welcome .response-code").text(jqXHR.status + " - " + textStatus + " - " + errorThrown);
+						$(".welcome .response-message").text(jqXHR.responseText);
+					}).done(function(data, textStatus, jqXHR) {
+						$(".welcome .response-code").text(jqXHR.status + " - " + textStatus);
 					});
 				});
 			});
 		</script>
 		<div class="welcome">
-			<h1>Welcome</h1>
+			<h1>Welcome, Refresh, Logout</h1>
 			<input type="button" name="callWelcome" value="Call Welcome">
+			<input type="button" name="refresh" value="Refresh">
+			<input type="button" name="logout" value="Logout">
 			<div class="request-response">
 				<p>Request url: <span class="request-url"></span></p>
 				<p>Response code: <span class="response-code"></span></p>
-				<p>Response message: <pre class="response-message"></pre></p>
 			</div>
 	</div>
 </body>
