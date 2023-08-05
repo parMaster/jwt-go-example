@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -79,6 +80,19 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func checkToken(token string, claims *Claims) (bool, error) {
+	tkn, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return jwtKey, nil
+	})
+	if err != nil {
+		return false, err
+	}
+	if !tkn.Valid {
+		return false, nil
+	}
+	return true, nil
+}
+
 func Welcome(w http.ResponseWriter, r *http.Request) {
 	// We can obtain the session token from the requests cookies, which come with every request
 	c, err := r.Cookie("token")
@@ -103,21 +117,22 @@ func Welcome(w http.ResponseWriter, r *http.Request) {
 	// Note that we are passing the key in this method as well. This method will return an error
 	// if the token is invalid (if it has expired according to the expiry time we set on sign in),
 	// or if the signature does not match
-	tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (interface{}, error) {
-		return jwtKey, nil
-	})
+
+	// check token
+	valid, err := checkToken(tknStr, claims)
 	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
+		if errors.Is(err, jwt.ErrSignatureInvalid) {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if !tkn.Valid {
+	if !valid {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
+
 	// Finally, return the welcome message to the user, along with their
 	// username given in the token
 	w.Write([]byte(fmt.Sprintf("Welcome %s!", claims.Username)))
