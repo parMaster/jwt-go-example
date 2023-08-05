@@ -12,6 +12,9 @@ func main() {
 	http.HandleFunc("/refresh", Refresh)
 	http.HandleFunc("/logout", Logout)
 
+	// Serving web pages
+	http.Handle("/", http.FileServer(http.Dir("./web")))
+
 	// start the server on port 8000
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }

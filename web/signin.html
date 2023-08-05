@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Sign In</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script type="text/javascript">
+		// call /signin api to sign in
+		$(document).ready(function() {
+			$("input[name='submit']").click(function() {
+				
+				let url = "http://localhost:8000/signin";
+
+				$(".signin .request-url").text(url);
+
+				$(".signin .request-body").text(JSON.stringify({
+					username: $("input[name='username']").val(),
+					password: $("input[name='password']").val()
+				}, null, 2));
+
+				signin(
+					url,
+					$("input[name='username']").val(),
+					$("input[name='password']").val()
+				);
+			});
+		});
+
+		// call url with json object {username: username, password: password} in request
+		function signin(url, username, password) {
+			$.ajax({
+				url: url,
+				type: "POST",
+				dataType: "text",
+				data: JSON.stringify({username: username, password: password}),
+			})
+			.always(function(data, textStatus, jqXHR) {
+				// this function will be called no matter response code is 200 or not
+				$(".signin .response-message").text("token cookie: " + document.cookie);
+			})
+			.fail(function(jqXHR, textStatus, errorThrown) {
+				// if response code is not 200, this function will be called
+				console.log("error");
+				$(".signin .response-code").text(errorThrown + " - " + textStatus);
+			})
+			.done(function(data, textStatus, jqXHR) {
+				// if response code is 200, this function will be called
+				console.log("success");
+				$(".signin .response-code").text(jqXHR.status + " - " + textStatus);
+			});
+		}
+
+	</script>
+</head>
+<body>
+	<div class="container">
+		<div class="signin">
+			<h1>Sign In</h1>
+			<form>
+				<input type="text" name="username" placeholder="Username" required>
+				<input type="password" name="password" placeholder="Password" required>
+				<input type="button" name="submit" value="Sign In">
+			</form>
+			<div class="request-response">
+				<h1>Request</h1>
+				<p>Request url: <span class="request-url"></span></p>
+				<p>Request body: <pre class="request-body"></pre></p>
+				<h1>Response</h1>
+				<p>Response code: <span class="response-code"></span></p>
+				<p>Document cookie: <pre class="response-message"></pre></p>
+			</div>
+		</div>
+
+
+		<script type="text/javascript">
+			// call /welcome api to get welcome message
+			$(document).ready(function() {
+				$("input[name='callWelcome']").click(function() {
+					let url = "http://localhost:8000/welcome";
+
+					$(".welcome .request-url").text(url);
+
+					$.ajax({
+						url: url,
+						type: "GET",
+						dataType: "text",
+					}).always(function(data, textStatus, jqXHR) {
+						// this function will be called no matter response code is 200 or not
+					}).fail(function(jqXHR, textStatus, errorThrown) {
+						// if response code is not 200, this function will be called
+						console.log("error");
+						$(".welcome .response-code").text(jqXHR.status + " - " + textStatus + " - " + errorThrown);
+						$(".welcome .response-message").text(jqXHR.responseText);
+					}).done(function(data, textStatus, jqXHR) {
+						$(".welcome .response-code").text(jqXHR.status + " - " + textStatus);
+						$(".welcome .response-message").text(data);
+					});
+				});
+			});
+		</script>
+		<div class="welcome">
+			<h1>Welcome</h1>
+			<input type="button" name="callWelcome" value="Call Welcome">
+			<div class="request-response">
+				<p>Request url: <span class="request-url"></span></p>
+				<p>Response code: <span class="response-code"></span></p>
+				<p>Response message: <pre class="response-message"></pre></p>
+			</div>
+	</div>
+</body>
+</html>
