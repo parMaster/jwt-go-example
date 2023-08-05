@@ -1,5 +1,5 @@
 module github.com/sohamkamani/jwt-go-example
 
-go 1.16
+go 1.20
 
-require github.com/golang-jwt/jwt/v4 v4.4.2
+require github.com/golang-jwt/jwt/v5 v5.0.0
